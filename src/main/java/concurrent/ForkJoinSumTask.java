@@ -12,54 +12,50 @@ import java.util.concurrent.RecursiveTask;
 
 /**
  * @author maojifeng
- * @version ForkJoin.java, v 0.1 maojifeng
+ * @version ForkJoinSumTask.java, v 0.1 maojifeng
  * @date 2018/1/25 14:59
- * @comment ForkJoin framework study
+ * @comment ForkJoinSumTask framework study
  */
-public class ForkJoin {
+public class ForkJoinSumTask extends RecursiveTask<Integer> {
 
+    private static final long serialVersionUID = -1765649363912569375L;
 
-    class ForkJoinSumTask extends RecursiveTask<Integer> {
+    private static final int THRESHOLD = 500000;
 
-        private static final long serialVersionUID = -1765649363912569375L;
+    private long[] array;
 
-        private static final int THRESHOLD = 500000;
+    private int low;
 
-        private long[] array;
+    private int high;
 
-        private int low;
+    ForkJoinSumTask(long[] array, int low, int high) {
+        this.array = array;
+        this.low = low;
+        this.high = high;
+    }
 
-        private int high;
-
-        ForkJoinSumTask(long[] array, int low, int high) {
-            this.array = array;
-            this.low = low;
-            this.high = high;
-        }
-
-        @Override
-        protected Integer compute() {
-            int sum = 0;
-            // 小于阈值则直接计算
-            if (high - low <= THRESHOLD) {
-                for (int i = low; i < high; i++) {
-                    sum += array[i];
-                }
+    @Override
+    protected Integer compute() {
+        int sum = 0;
+        // 小于阈值则直接计算
+        if (high - low <= THRESHOLD) {
+            for (int i = low; i <= high; i++) {
+                sum += array[i];
             }
-            // 否则，切割成2个子任务
-            int mid = (low + high) >>> 1;
-            ForkJoinSumTask left = new ForkJoinSumTask(array, low, mid);
-            ForkJoinSumTask right = new ForkJoinSumTask(array, mid + 1, high);
-
-            // 2.分别计算
-            left.fork();
-            right.fork();
-
-            // 3.合并结果
-            sum = left.join() + right.join();
-
             return sum;
         }
+        // 否则，切割成2个子任务
+        int mid = (low + high) >>> 1;
+        ForkJoinSumTask left = new ForkJoinSumTask(array, low, mid);
+        ForkJoinSumTask right = new ForkJoinSumTask(array, mid + 1, high);
+
+        // 2.分别计算
+        left.fork();
+        right.fork();
+
+        // 3.合并结果
+        sum = left.join() + right.join();
+        return sum;
     }
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
@@ -68,8 +64,7 @@ public class ForkJoin {
         System.out.println(Arrays.toString(array));
 
         // 1.创建任务
-        ForkJoin forkJoin = new ForkJoin();
-        ForkJoinSumTask forkJoinSumTask = forkJoin.new ForkJoinSumTask(array, 0, array.length - 1);
+        ForkJoinSumTask forkJoinSumTask = new ForkJoinSumTask(array, 0, array.length - 1);
 
         long begin = System.currentTimeMillis();
 
