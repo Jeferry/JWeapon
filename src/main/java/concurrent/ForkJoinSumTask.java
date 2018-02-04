@@ -95,7 +95,7 @@ public class ForkJoinSumTask extends RecursiveTask<Integer> {
         Random random = new Random();
         long[] newArray = new long[size];
         for (int i = 0; i < size; i++) {
-            newArray[i] = random.nextInt();
+            newArray[i] = random.nextLong();
         }
         return newArray;
     }
