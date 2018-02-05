@@ -4,6 +4,7 @@
  */
 package concurrent;
 
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -31,7 +32,11 @@ public class ConcurrentMapStudy {
     }
 
     private static Thread putValue() {
-        return new Thread(() -> System.out.println(Thread.currentThread().getId() + " result:" + concurrentMap.put("id", Thread.currentThread().getId())));
+        return new Thread(() -> {
+            int random = new Random().nextInt();
+            System.out.print("put:" + random + " result:" + concurrentMap.put("id", random));
+            System.out.println(" Time:" + System.nanoTime());
+        });
     }
 
 
